@@ -7,9 +7,18 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import { chatModel } from "./chat.schema.js";
 import formatDateToIST from "./timestampFormatter.js";
+import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const app = express();
+
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, "public")));
 
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
@@ -182,7 +191,9 @@ io.on("connection", (socket) => {
   });
 });
 
-
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "index.html"));
+});
 const port = process.env.PORT;
 httpServer.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
