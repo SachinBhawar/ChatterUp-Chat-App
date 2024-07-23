@@ -1,0 +1,28 @@
+{
+  "name": "chatterup",
+  "version": "1.0.0",
+  "description": "Chat application developed using express nodejs socket.io mongodb mongoose",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon server.js"
+  },
+  "keywords": [
+    "chat",
+    "socket.io",
+    "live-chat"
+  ],
+  "author": "Sachin Bhawar",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "moment": "^2.30.1",
+    "mongodb": "^6.8.0",
+    "mongoose": "^8.5.0",
+    "multer": "^1.4.5-lts.1",
+    "socket.io": "^4.7.5"
+  }
+}

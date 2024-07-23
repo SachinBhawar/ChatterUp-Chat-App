@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="shortcut icon" href="../public/fav.jpg" type="image/x-icon" />
+    <title>ChatterUp</title>
+  </head>
+  <body>
+    <div id="container">
+      <section id="msg-section">
+        <div id="brand">
+          <div id="logo-container">
+            <img src="../public/2.jpg" alt="" />
+          </div>
+          <h3 id="app-name">ChatterUp</h3>
+          <div id="dropdown-menu" onclick="togglemenu()">
+            <div></div>
+            <div></div>
+            <div></div>
+          </div>
+          <ul id="menu-list" class="hide">
+            <li id="profileName" onclick="showProfileUpdateForm()">Profile Image</li>
+            <li onclick="toggleTimeline()">Load Old Messages</li>
+            <li onclick="logout()"><a href="./index.html" style="color: white; text-decoration: none">Logout</a></li>
+          </ul>
+          <ul id="timeline-list" class="hide">
+            <li onclick="loadMsgs('24hrs')">Last 24 Hrs</li>
+            <li onclick="loadMsgs('oneWeek')">Last week</li>
+            <li onclick="loadMsgs('oneMonth')">Last month</li>
+          </ul>
+        </div>
+
+        <div id="msg-box"></div>
+
+        <div id="send-msg">
+          <textarea id="typing-box" rows="1" placeholder="Type message here..."></textarea>
+          <button id="send-msg-btn" onclick="sendMsg()">Send</button>
+        </div>
+
+        <div id="dp-update" class="hide">
+          <div id="profile-update-form">
+            <h2>Profile</h2>
+            <div id="dp-img-container"></div>
+            <input id="profilePic" name="profile-image" type="file" hidden />
+            <!-- <label class="btn" for="profilePic" onclick="updateProfile()">Change Dp</label> -->
+            <button class="btn" onclick="hideProfileUpdateForm()">Cancel</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="user-list">
+        <div id="user-list-heading" class="">
+          <h3 id="user-numbers" class="scaleH">Connected Users</h3>
+        </div>
+        <div id="connected-users-container"></div>
+      </section>
+    </div>
+
+    <div id="overlay" class="high-z-index">
+      <form id="registrationForm">
+        <h2>Register</h2>
+        <label for="name">Name:</label><br />
+        <input type="text" id="name" name="name" /><br />
+        <label for="room">Chat Room:</label><br />
+        <input type="text" id="room" name="room" /><br />
+        <label for="profileImage" id="upload-btn">Upload Profile Image</label><br />
+        <input type="file" id="profileImage" name="profileImage" accept="image/*" hidden /><br />
+        <button type="submit">Register</button>
+      </form>
+    </div>
+
+    <!-- scripts -->
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io.connect("http://localhost:3000");
+
+      const overlay = document.getElementById("overlay");
+      const menu = document.getElementById("menu-list");
+      const timeLine = document.getElementById("timeline-list");
+      const typingBox = document.getElementById("typing-box");
+      const msgBox = document.getElementById("msg-box");
+      const form = document.getElementById("registrationForm");
+      const nameInput = document.getElementById("name");
+      const roomInput = document.getElementById("room");
+      const profileImageInput = document.getElementById("profileImage");
+      const connectedUsersContainer = document.getElementById("connected-users-container");
+      const profileUpdate = document.getElementById("dp-update");
+      let myRoom, myId, myName, myDp, prevSenderId;
+
+      // when document is loaded first appearance is registration form
+      // filling registration form is made mandatory & after fillin form emiting 'new user joined' event
+      document.addEventListener("DOMContentLoaded", function () {
+        form.addEventListener("submit", function (event) {
+          event.preventDefault(); // Prevent the default form submission
+
+          if (nameInput.value && roomInput.value && profileImageInput.files.length > 0) {
+            let userName = nameInput.value;
+            let room = roomInput.value;
+            const reader = new FileReader();
+            const file = profileImageInput.files[0];
+            if (file) {
+              reader.onload = (e) => {
+                //show welcome message in our own html browser
+                let ele2 = `<div class="user-joined-notification">Welcome, ${userName} ! This is room: ${room}</div> `;
+                document.getElementById("msg-box").innerHTML += ele2;
+
+                // saving room and userName in myRoom & myName variables for further use.
+                myName = userName;
+                myRoom = room;
+                myDp = e.target.result;
+                socket.emit("new user joined", { userName, room, profileImage: e.target.result });
+              };
+              reader.readAsDataURL(file);
+            }
+            overlay.classList.remove("high-z-index");
+            overlay.classList.add("low-z-index");
+            form.style.display = "none";
+            nameInput.value = "";
+            roomInput.value = "";
+            profileImageInput.files = null;
+          } else {
+            alert("Please fill out all fields.");
+          }
+        });
+      });
+
+      //listening to events
+      socket.on("alertMsg", (msg) => {
+        alert(`${msg}`);
+      });
+
+      socket.on("clearAllMsgs", () => {
+        document.getElementById("msg-box").innerHTML = "";
+      });
+
+      // socket.on("typing", userId);
+      socket.on("incomingMsg", (data) => {
+        if (prevSenderId == data.senderId) {
+          let ele = `<div class="incoming-msg-container">
+            <div class="user-dp"></div>
+            <div>
+              <div class="message-box imcoming-msg">
+                <div class="message">${data.message}
+                </div>
+                <div class="timestamp">
+                  <i><small>${data.time}</small></i>
+                </div>
+              </div>
+            </div>
+          </div>`;
+          document.getElementById("msg-box").innerHTML += ele;
+        } else {
+          prevSenderId = data.senderId;
+          let ele = `<div class="incoming-msg-container">
+            <div class="user-dp"><img src="${data.senderDP}" alt="${data.senderName}" /></div>
+            <div>
+              <div class="user-name">
+                <strong>${data.senderName}</strong>
+              </div>
+              <div class="message-box imcoming-msg">
+                <div class="message">${data.message}
+                </div>
+                <div class="timestamp">
+                  <i><small>${data.time}</small></i>
+                </div>
+              </div>
+            </div>
+          </div>`;
+          document.getElementById("msg-box").innerHTML += ele;
+        }
+      });
+
+      socket.on("new user joined", (userData) => {
+        let ele0 = `<div class="user-joined-notification">${userData.userName} has joined</div> `;
+        document.getElementById("msg-box").innerHTML += ele0;
+        socket.emit("refresh-userList", userData.room);
+      });
+
+      socket.on("user left", (name) => {
+        console.log("user left");
+        let ele = `<div class="user-joined-notification">${name} left</div> `;
+        document.getElementById("msg-box").innerHTML += ele;
+        console.log("logout initiated...");
+      });
+
+      socket.on("logout", () => {
+        socket.disconnect();
+      });
+
+      socket.on("refresh room-userlist", (userList) => {
+        console.log("Userlist refresed");
+        connectedUsersContainer.innerHTML = "";
+        userList.forEach((user) => {
+          let ele = `<div class="connected-user" id="user.id">
+            <div class="user-dp"><img src="${user.dp}" alt="${user.name}" /></div>
+            <div>
+              <div class="user-name">
+                <strong>${user.name}</strong>&nbsp;&nbsp;&nbsp;&nbsp;<span
+                  ><i><small id="${user.id}" class="sender-status flash hide">typing...</small></i></span
+                >
+              </div>
+          </div>`;
+          connectedUsersContainer.innerHTML += ele;
+          let noOfUsers = userList.length;
+          document.getElementById("user-numbers").innerText = `Connected Users (${noOfUsers})`;
+        });
+      });
+
+      socket.on("setMyInfo", (data) => {
+        myId = data.id;
+        myName = data.name;
+        myRoom = data.room;
+        myDp = data.dp;
+        let dpContainer = `<img src = "${myDp}" style="width:100%; height:100%">`;
+        document.getElementById("dp-img-container").innerHTML = dpContainer;
+        document.getElementById("profileName").innerText = `${myName}'s Profile`;
+      });
+
+      socket.on("outgoingMsg", (data) => {
+        let ele = `<div class="outgoing-msg-container">
+            <div class="message-box outgoing-msg">
+              <div class="message">${data.message}</div>
+              <div class="timestamp">
+                <i><small>${data.time}</small></i>
+              </div>
+            </div>
+          </div>`;
+
+        msgBox.innerHTML += ele;
+
+        typingBox.value = "";
+        prevSenderId = myId;
+      });
+
+      socket.on("typing", (userId) => {
+        document.getElementById(userId).classList.remove("hide");
+      });
+
+      socket.on("notTyping", (userId) => {
+        document.getElementById(userId).classList.add("hide");
+      });
+      //emiting events
+      // 1 sendMsg : client can type in msg-box and send then emiting the 'sendMsg' event
+      function sendMsg() {
+        let message = typingBox.value;
+        if (message === "") return;
+
+        message = message.replace(/\n/g, "<br />");
+
+        socket.emit("sendMsg", { message, room: myRoom });
+      }
+
+      // 2. load previous msgs as per user requested timespan
+      function loadMsgs(timeSpan) {
+        timeLine.classList.add("hide");
+        socket.emit("load prevMsgs", { timeSpan, room: myRoom });
+      }
+
+      // 3. emitting event typing
+      typingBox.addEventListener("focus", (event) => {
+        event.preventDefault();
+        socket.emit("typing", { id: myId, room: myRoom });
+      });
+
+      //4. emitting event when user not  focusing on the typingbox
+      typingBox.addEventListener("blur", (event) => {
+        event.preventDefault();
+        socket.emit("notTyping", { id: myId, room: myRoom });
+      });
+      // frontEnd related functions
+      // 1. always scroll down to newly posted message
+      function scrollToBottom() {
+        msgBox.scrollTop = msgBox.scrollHeight;
+      }
+      var observer = new MutationObserver(scrollToBottom);
+      var config = { childList: true };
+      observer.observe(msgBox, config);
+
+      // 2 open menu when clicked on 3 dots and close menu when click happened outside the menu.
+      function togglemenu() {
+        if (menu.classList.contains("hide")) {
+          menu.classList.remove("hide");
+        } else {
+          menu.classList.add("hide");
+        }
+      }
+
+      document.addEventListener(
+        "mousedown",
+        function (event) {
+          // Calculate the rectangle of the div
+          var rect = menu.getBoundingClientRect();
+          // Determine if the click was outside the div
+          var isInDiv =
+            event.clientX > rect.left &&
+            event.clientX < rect.right &&
+            event.clientY > rect.top &&
+            event.clientY < rect.bottom;
+          if (!isInDiv) {
+            menu.classList.add("hide");
+          }
+        },
+        false
+      );
+
+      // 3 open loadmessages sub menu and close it when click happened outside the sub-menu.
+      function toggleTimeline() {
+        if (!menu.classList.contains("hide")) {
+          menu.classList.add("hide");
+        }
+        timeLine.classList.toggle("hide");
+      }
+
+      document.addEventListener(
+        "mousedown",
+        function (event) {
+          // Calculating the rectangle of the div using getBoundingClientRect method
+          var rect = timeLine.getBoundingClientRect();
+          // Determine if the click was outside the div
+          var isInDiv =
+            event.clientX > rect.left &&
+            event.clientX < rect.right &&
+            event.clientY > rect.top &&
+            event.clientY < rect.bottom;
+          if (!isInDiv) {
+            timeLine.classList.add("hide");
+          }
+        },
+        false
+      );
+
+      // 4 message type textarea if enter happens go to new line and increase rows, max of 3 rows
+      document.addEventListener("keydown", function (event) {
+        const currentRows = parseInt(msgBox.getAttribute("rows"), 10);
+
+        // Check if Alt + Enter keys were pressed
+        if (event.altKey && event.key === "Enter") {
+          // Prevent the default Enter key behavior
+          event.preventDefault();
+
+          // Increase the number of rows by 1, up to a maximum of 3
+          if (currentRows < 3) {
+            msgBox.setAttribute("rows", String(currentRows + 1));
+          }
+        }
+      });
+
+      // 5 Update profile, hide profile update form ,show update Profile form
+      function updateProfile() {
+        const reader = new FileReader();
+        const profilePic = document.getElementById("profilePic").files[0];
+        console.log(profilePic);
+        if (profilePic) {
+          console.log("file is present");
+          reader.onload = (e) => {
+            socket.emit("update-dp", { id: myId, name: myName, room: myRoom, dp: e.target.result });
+            document.getElementById("profilePic").files[0] = null;
+          };
+        } else {
+          hideProfileUpdateForm();
+        }
+      }
+
+      function hideProfileUpdateForm() {
+        profileUpdate.classList.add("hide");
+      }
+
+      function showProfileUpdateForm() {
+        profileUpdate.classList.remove("hide");
+        togglemenu();
+      }
+
+      // 6 logout
+      function logout() {
+        socket.emit("user left", { id: myId, name: myName, room: myRoom });
+      }
+    </script>
+  </body>
+</html>
