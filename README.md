@@ -26,6 +26,6 @@ Connect with Me
 
 I am actively seeking opportunities where I can leverage my skills in Node.js, Express, and Socket.IO to drive innovation and growth. If you're looking for someone passionate about web development and eager to make a difference, let's connect!
 
-Experience ChatterUp Live: 
+Experience ChatterUp Live: https://chatterup-chat-app.onrender.com
 
 
