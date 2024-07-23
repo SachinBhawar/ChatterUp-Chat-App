@@ -10,11 +10,11 @@ In an era where instant connectivity defines our interactions, ChatterUp stands 
 
 ***Technical Highlights***
 
-+*Express Framework:* Utilized for creating a scalable backend architecture.
+**Express Framework:* Utilized for creating a scalable backend architecture.
 
-+*Socket.IO:* Enabled real-time, bidirectional, and event-based communication.
+**Socket.IO:* Enabled real-time, bidirectional, and event-based communication.
 
-+*Node.js:* Served as the foundation, offering an efficient environment for building fast and scalable network applications.
+**Node.js:* Served as the foundation, offering an efficient environment for building fast and scalable network applications.
 
 ChatterUp is more than just a chat application; it's a reflection of my commitment to mastering Node.js and its ecosystem, emphasizing my ability to build responsive, secure, and scalable web applications.
 
