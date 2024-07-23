@@ -1,4 +1,4 @@
-📣 Introducing ChatterUp: A Real-Time Chat Application Built with Express & Socket.IO 📣
+** 📣 Introducing ChatterUp: A Real-Time Chat Application Built with Express & Socket.IO 📣 **
 
 Hello Network! 👋
 
