@@ -7,9 +7,18 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import { chatModel } from "./chat.schema.js";
 import formatDateToIST from "./timestampFormatter.js";
+import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
 const app = express();
+
 app.use(cors());
 app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, "public")));
 
 const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
@@ -28,7 +37,13 @@ io.on("connection", (socket) => {
   socket.on("new user joined", async (data) => {
     // joining the room by data.room which came in the emmited event
     socket.join(data.room);
-
+    let userDp;
+    if (!data.profileImage) {
+      userDp =
+        "https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-image-182145777.jpg";
+    } else {
+      userDp = data.profileImage;
+    }
     // creating new user and saving it to mongodb database
     const newUser = new userModel({ userName: data.userName, profileImage: data.profileImage });
     const newUserSaved = await newUser.save();
@@ -43,13 +58,11 @@ io.on("connection", (socket) => {
     usersInRooms[data.room].push({
       id: newUserSaved._id,
       name: newUserSaved.userName,
-      dp: data.profileImage.toString(),
+      dp: userDp,
     });
 
     // emitting event to the room that new user has joined
-    socket
-      .to(data.room)
-      .emit("new user joined", { userName: data.userName, room: data.room, dp: data.profileImage.toString() });
+    socket.to(data.room).emit("new user joined", { userName: data.userName, room: data.room, dp: userDp });
 
     // emit refresh userList event
     io.to(data.room).emit("refresh room-userlist", usersInRooms[data.room]);
@@ -58,7 +71,7 @@ io.on("connection", (socket) => {
     socket.emit("setMyInfo", {
       id: newUserSaved._id,
       name: newUserSaved.userName,
-      dp: data.profileImage.toString(),
+      dp: userDp,
       room: data.room,
     });
   });
@@ -182,7 +195,11 @@ io.on("connection", (socket) => {
   });
 });
 
-httpServer.listen(3000, () => {
-  console.log("Server is listening on port 3000");
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "client", "index.html"));
+});
+const port = process.env.PORT;
+httpServer.listen(port, () => {
+  console.log(`Server is listening on port ${port}`);
   connectToMongoDB();
 });

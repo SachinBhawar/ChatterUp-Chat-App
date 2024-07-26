@@ -5,7 +5,7 @@ const formatDateToIST = (utcTimestamp) => {
   let utcDate = new Date(utcTimestamp);
 
   // Step 2: Adjust to IST
-  let istOffset = 0; // IST is UTC + 5:30
+  let istOffset = 330; // IST is UTC + 5:30
   let istDate = new Date(utcDate.getTime() + istOffset * 60 * 1000);
 
   // Step 3: Format the date and time
@@ -39,10 +39,24 @@ function formatTime(date) {
 // Helper function to format date
 function formatDate(date) {
   let day = date.getDate();
-  let month = date.getMonth() + 1; // January is 0!
+  let monthNo = date.getMonth(); // January is 0!
+  let month = {
+    0: "Jan",
+    1: "Feb",
+    2: "Mar",
+    3: "Apr",
+    4: "May",
+    5: "Jun",
+    6: "Jul",
+    7: "Aug",
+    8: "Sep",
+    9: "Oct",
+    10: "Nov",
+    11: "Dec",
+  };
   let year = date.getFullYear();
 
-  return `${day} ${month < 10 ? "0" + month : month}, ${year}`;
+  return `${day} ${month[monthNo]}, ${year}`;
 }
 
 export default formatDateToIST;
