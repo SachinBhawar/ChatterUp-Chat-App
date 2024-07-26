@@ -3,7 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="shortcut icon" href="https://res.cloudinary.com/dfkyw4wjn/image/upload/v1721754888/fav_hnrzmq.jpg" type="image/x-icon" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="shortcut icon" href="../public/fav.jpg" type="image/x-icon" />
     <title>ChatterUp</title>
     <style>
       * {
@@ -475,7 +476,7 @@
       <section id="msg-section">
         <div id="brand">
           <div id="logo-container">
-            <img src="https://res.cloudinary.com/dfkyw4wjn/image/upload/v1721754571/2_ntjomg.jpg" alt="" />
+            <img src="../public/2.jpg" alt="" />
           </div>
           <h3 id="app-name">ChatterUp</h3>
           <div id="dropdown-menu" onclick="togglemenu()">
@@ -535,9 +536,9 @@
     </div>
 
     <!-- scripts -->
-    <script src="https://chatterup-chat-app.onrender.com/socket.io/socket.io.js"></script>
+    <script src="http://localhost:3600/socket.io/socket.io.js"></script>
     <script>
-      const socket = io.connect("https://chatterup-chat-app.onrender.com");
+      const socket = io.connect("http://localhost:3600");
 
       const overlay = document.getElementById("overlay");
       const menu = document.getElementById("menu-list");
@@ -558,7 +559,7 @@
         form.addEventListener("submit", function (event) {
           event.preventDefault(); // Prevent the default form submission
 
-          if (nameInput.value && roomInput.value && profileImageInput.files.length > 0) {
+          if (nameInput.value && roomInput.value) {
             let userName = nameInput.value;
             let room = roomInput.value;
             const reader = new FileReader();
@@ -570,13 +571,16 @@
                 document.getElementById("msg-box").innerHTML += ele2;
 
                 // saving room and userName in myRoom & myName variables for further use.
-                myName = userName;
-                myRoom = room;
                 myDp = e.target.result;
-                socket.emit("new user joined", { userName, room, profileImage: e.target.result });
               };
               reader.readAsDataURL(file);
             }
+
+            myName = userName;
+            myRoom = room;
+            let myDpFinal = myDp ? myDp : null;
+            socket.emit("new user joined", { userName, room, profileImage: myDpFinal });
+
             overlay.classList.remove("high-z-index");
             overlay.classList.add("low-z-index");
             form.style.display = "none";
@@ -797,6 +801,12 @@
       // 4 message type textarea if enter happens go to new line and increase rows, max of 3 rows
       document.addEventListener("keydown", function (event) {
         const currentRows = parseInt(msgBox.getAttribute("rows"), 10);
+
+        if (event.key === "Enter") {
+          // Prevent the default Enter key behavior
+          event.preventDefault();
+          sendMsg();
+        }
 
         // Check if Alt + Enter keys were pressed
         if (event.altKey && event.key === "Enter") {
