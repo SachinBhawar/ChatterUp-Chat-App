@@ -37,7 +37,13 @@ io.on("connection", (socket) => {
   socket.on("new user joined", async (data) => {
     // joining the room by data.room which came in the emmited event
     socket.join(data.room);
-
+    let userDp;
+    if (!data.profileImage) {
+      userDp =
+        "https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-image-182145777.jpg";
+    } else {
+      userDp = data.profileImage;
+    }
     // creating new user and saving it to mongodb database
     const newUser = new userModel({ userName: data.userName, profileImage: data.profileImage });
     const newUserSaved = await newUser.save();
@@ -52,13 +58,11 @@ io.on("connection", (socket) => {
     usersInRooms[data.room].push({
       id: newUserSaved._id,
       name: newUserSaved.userName,
-      dp: data.profileImage.toString(),
+      dp: userDp,
     });
 
     // emitting event to the room that new user has joined
-    socket
-      .to(data.room)
-      .emit("new user joined", { userName: data.userName, room: data.room, dp: data.profileImage.toString() });
+    socket.to(data.room).emit("new user joined", { userName: data.userName, room: data.room, dp: userDp });
 
     // emit refresh userList event
     io.to(data.room).emit("refresh room-userlist", usersInRooms[data.room]);
@@ -67,7 +71,7 @@ io.on("connection", (socket) => {
     socket.emit("setMyInfo", {
       id: newUserSaved._id,
       name: newUserSaved.userName,
-      dp: data.profileImage.toString(),
+      dp: userDp,
       room: data.room,
     });
   });
