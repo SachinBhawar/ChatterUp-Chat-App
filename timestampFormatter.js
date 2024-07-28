@@ -5,7 +5,7 @@ const formatDateToIST = (utcTimestamp) => {
   let utcDate = new Date(utcTimestamp);
 
   // Step 2: Adjust to IST
-  let istOffset = 330; // IST is UTC + 5:30
+  let istOffset = 0; // IST is UTC + 5:30
   let istDate = new Date(utcDate.getTime() + istOffset * 60 * 1000);
 
   // Step 3: Format the date and time
