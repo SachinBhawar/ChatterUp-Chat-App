@@ -33,11 +33,12 @@ let usersInRooms = {};
 io.on("connection", (socket) => {
   console.log("connection established.");
 
+  let userDp;
   // 1 listening to 'new user joined' event
   socket.on("new user joined", async (data) => {
     // joining the room by data.room which came in the emmited event
     socket.join(data.room);
-    let userDp;
+
     if (!data.profileImage) {
       userDp =
         "https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-image-182145777.jpg";
@@ -104,7 +105,9 @@ io.on("connection", (socket) => {
     socket.to(data.room).emit("incomingMsg", {
       senderId: user.id,
       senderName: user.name,
-      senderDP: user.dp,
+      senderDP: user.dp
+        ? user.dp
+        : "https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-image-182145777.jpg",
       message: data.message,
       time: formatDateToIST(newChat.createdAt),
     });
@@ -152,7 +155,9 @@ io.on("connection", (socket) => {
           socket.emit("incomingMsg", {
             senderId: msg.userId,
             senderName: msg.username,
-            senderDP: user.profileImage.toString(),
+            senderDP: user.profileImage
+              ? user.profileImage.toString()
+              : "https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-image-182145777.jpg",
             message: msg.message,
             time: formatDateToIST(msg.createdAt),
           });
