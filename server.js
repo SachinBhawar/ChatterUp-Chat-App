@@ -140,6 +140,7 @@ io.on("connection", (socket) => {
       if (messages.length == 0) {
         socket.emit("alertMsg", "No previuos messeges.");
       }
+      messages.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
       socket.emit("clearAllMsgs");
 
       messages.forEach(async (msg) => {
