@@ -567,10 +567,7 @@
                         let room = roomInput.value;
                         let myDp = null;
 
-                        console.log(profileImageInput.files.length);
                         const file = profileImageInput.files.length ? profileImageInput.files[0] : null; // Get the profile image file
-                        console.log(file);
-
                         if (file) {
                             const reader = new FileReader();
                             reader.onload = (e) => {
@@ -590,9 +587,7 @@
                             // Show welcome message in our own HTML browser
                             let ele2 = `<div class="user-joined-notification">Welcome, ${userName}! This is room: ${room}</div>`;
                             document.getElementById("msg-box").innerHTML += ele2;
-
                             socket.emit("new user joined", { userName, room, profileImage });
-
                             overlay.classList.remove("high-z-index");
                             overlay.classList.add("low-z-index");
                             form.style.display = "none";
