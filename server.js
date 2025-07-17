@@ -89,6 +89,7 @@ io.on("connection", (socket) => {
 
     // 3 listeming to sendMsg event and emit incomingMsg event
     socket.on("sendMsg", async (data) => {
+        const sendTime = data.sendTime || Date.now();
         const userList = usersInRooms[data.room];
         let user = userList.find((ele) => ele.id == socket.userId);
 
@@ -112,10 +113,11 @@ io.on("connection", (socket) => {
                 : "https://thumbs.dreamstime.com/b/default-avatar-profile-icon-vector-social-media-user-image-182145777.jpg",
             message: data.message,
             time: formatDateToIST(newChat.createdAt),
+            sendTime,
         });
 
         //emiting event for sender
-        socket.emit("outgoingMsg", { message: data.message, time });
+        socket.emit("outgoingMsg", { message: data.message, time, sendTime });
     });
 
     // 4 listening to load prevMsgs
