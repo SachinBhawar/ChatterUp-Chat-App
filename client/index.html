@@ -8,8 +8,484 @@
             href="https://res.cloudinary.com/dfkyw4wjn/image/upload/v1721754888/fav_hnrzmq.jpg"
             type="image/x-icon"
         />
-        <link rel="stylesheet" href="styles.css" />
+        <!-- <link rel="stylesheet" href="styles.css" /> -->
         <title>ChatterUp</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+            }
+
+            body {
+                height: 100vh;
+                width: 100vw;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-image: linear-gradient(45deg, #b34bf4, #6a12f6);
+                background-repeat: no-repeat;
+            }
+
+            #container {
+                max-width: 900px;
+                max-height: 600px;
+                display: flex;
+                direction: flex;
+                gap: 5px;
+            }
+
+            /* this is first section */
+            #msg-section {
+                position: relative;
+                width: 70%;
+                min-width: 400px;
+                min-height: 60vh;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 2px;
+                background-color: #e5e5e5;
+                border-radius: 10px;
+                margin-right: 10px;
+                padding: 3px;
+                overflow-x: hidden;
+                box-sizing: border-box;
+            }
+
+            #brand {
+                background-color: #269b66;
+                height: 50px;
+                border-radius: 10px 10px 10px 10px;
+                display: flex;
+                align-items: center;
+                padding: 10px 10px 10px 30px;
+                text-wrap: wrap;
+                position: relative;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            #logo-container {
+                width: 45px;
+                height: 45px;
+                border-radius: 50%;
+            }
+            #logo-container img {
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+            }
+
+            #app-name {
+                color: white;
+                font-family: sans-serif;
+                margin-left: 10px;
+            }
+
+            #dropdown-menu {
+                width: 30px;
+                height: 30px;
+                padding: 5px;
+                border-radius: 4px;
+                position: absolute;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: space-evenly;
+                box-sizing: border-box;
+                /* float: right; */
+                right: 10px;
+            }
+            #dropdown-menu:hover {
+                background-color: #8a1677;
+            }
+            #dropdown-menu div {
+                height: 3px;
+                width: 3px;
+                border-radius: 1px;
+                background-color: white;
+            }
+
+            #menu-list,
+            #timeline-list {
+                color: white;
+                list-style: none;
+                font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial,
+                    sans-serif;
+                position: absolute;
+                background-color: #9d56fa;
+                right: 15px;
+                top: 20px;
+                border-radius: 4px;
+            }
+
+            #menu-list li,
+            #timeline-list li {
+                padding: 10px;
+                border-radius: 4px;
+            }
+            #menu-list li:hover,
+            #timeline-list li:hover {
+                background-color: #ea5ff8;
+            }
+
+            .hide {
+                display: none;
+            }
+
+            #msg-box {
+                width: 100%;
+                height: 77%;
+                overflow-x: hidden;
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 5px;
+            }
+            .user-joined-notification {
+                color: white;
+                font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial,
+                    sans-serif;
+                background-color: #6a12f6;
+                padding: 1px 10px;
+                border-radius: 8px;
+                font-size: xx-small;
+            }
+            .incoming-msg-container {
+                width: 100%;
+                display: flex;
+                gap: 3px;
+            }
+            .outgoing-msg-container {
+                width: 100%;
+                display: flex;
+                flex-direction: row-reverse;
+            }
+            .user-dp {
+                margin-top: 5px;
+                border-radius: 50%;
+                width: 30px;
+                height: 30px;
+                flex: 0 0 auto;
+                border: 1px solid rgba(0, 0, 0, 0);
+            }
+
+            .user-dp img {
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+            }
+            .user-name {
+                font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande", "Lucida Sans", Arial,
+                    sans-serif;
+                color: #ab3e10;
+                font-size: small;
+            }
+            .d-none {
+                display: none;
+            }
+            .message-box {
+                /* border: 1px solid blue; */
+                width: fit-content;
+                max-width: 60%;
+                display: flex;
+                flex-direction: column;
+                padding: 4px 20px 4px 4px;
+            }
+
+            .imcoming-msg {
+                border-radius: 0px 8px 8px 8px;
+                background-color: #9d56fa;
+            }
+
+            .outgoing-msg {
+                border-radius: 8px 0px 8px 8px;
+                background-color: #ea5ff8;
+                margin-right: 5px;
+            }
+            .imcoming-msg {
+                border-radius: 0px 6px 6px 6px;
+                background-color: #9d56fa;
+            }
+
+            .outgoing-msg {
+                border-radius: 6px 0px 6px 6px;
+                background-color: #ea5ff8;
+                margin-right: 5px;
+            }
+            .timestamp {
+                /* text-align: right; */
+                padding-right: 6px;
+            }
+            .timestamp i small {
+                white-space: nowrap;
+                min-width: 150px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                display: inline-block;
+                font-size: x-small;
+                /*! text-align: right; */
+            }
+            .message {
+                font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+                padding: 2px;
+                min-width: 70px;
+            }
+
+            #send-msg {
+                position: absolute;
+                width: 100%;
+                height: 50px;
+                padding: 5px 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 5px;
+                box-sizing: border-box;
+                flex: 0 0 auto;
+                bottom: 2px;
+                box-sizing: border-box;
+            }
+            #typing-box {
+                border-radius: 3px;
+                height: 25px;
+                padding: 3px;
+                flex: 1 1 auto;
+                outline: none;
+                border-radius: 4px;
+                border: none;
+            }
+            #typing-box:focus {
+                background-color: aqua;
+            }
+            #typing-box:focus::-webkit-input-placeholder {
+                color: transparent;
+            }
+            #send-msg-btn {
+                width: 70px;
+                height: 30px;
+                background-color: #269b64;
+                color: white;
+                font-weight: bold;
+                border-radius: 8px;
+            }
+            #dp-update {
+                font-family: Arial, Helvetica, sans-serif;
+                width: 250px;
+                background-color: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                z-index: 10;
+                margin-bottom: 5px;
+                /*! display: none; */
+            }
+
+            #dp-img-container {
+                width: 100%;
+                aspect-ratio: 1;
+                background-color: aquamarine;
+                margin-bottom: 5px;
+            }
+
+            /* this is second section */
+            #user-list {
+                background-color: rgb(239, 233, 233);
+                border-radius: 10px;
+                display: flex;
+                flex-direction: column;
+                flex: 1 1 auto;
+                align-items: center;
+                min-width: 300px;
+            }
+
+            #user-list-heading {
+                background-color: #269b66;
+                width: 98%;
+                box-sizing: border-box;
+                height: 50px;
+                border-radius: 10px 10px 10px 10px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 10px 0px;
+                text-wrap: wrap;
+                margin: 3px auto;
+            }
+
+            #user-numbers {
+                color: white;
+                font-family: sans-serif;
+                margin-left: 10px;
+            }
+            #connected-users-container {
+                overflow-x: hidden;
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                width: 80%;
+                justify-content: center;
+            }
+            .connected-user {
+                display: flex;
+                flex-shrink: 0;
+                gap: 3px;
+                align-items: center;
+                padding-left: 10px;
+                overflow: hidden;
+                padding-bottom: 5px;
+                width: 100%;
+            }
+
+            /* registration form */
+            #overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(10px);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .high-z-index {
+                z-index: 100;
+            }
+            .low-z-index {
+                z-index: -10;
+                display: none;
+            }
+
+            #upload-btn {
+                background-color: #ea5ff8;
+                text-align: center;
+                border-radius: 8px;
+                padding-top: 10px;
+                padding-bottom: 10px;
+                color: white;
+                font-weight: bolder;
+            }
+
+            #upload-btn:active {
+                color: red;
+                scale: 0.95;
+                transition: scale color 0.4s ease-in-out;
+            }
+            #registrationForm {
+                font-family: Arial, Helvetica, sans-serif;
+                width: 250px;
+                background-color: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            }
+            #registrationForm h2 {
+                margin-bottom: 20px;
+            }
+            #registrationForm label {
+                display: block;
+                margin-bottom: 5px;
+            }
+
+            #registrationForm input[type="text"],
+            #registrationForm input[type="email"] {
+                box-sizing: border-box;
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 15px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+
+            #registrationForm button,
+            .btn {
+                background-color: #007bff;
+                color: white;
+                padding: 10px 20px;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+
+            .btn:hover,
+            #registrationForm button:hover {
+                background-color: #0056b3;
+            }
+
+            /* Animations */
+            .flash {
+                /* font-size: 24px; */
+                color: green;
+                animation: blink 1s linear infinite;
+            }
+
+            @keyframes blink {
+                0% {
+                    opacity: 1;
+                }
+                50% {
+                    opacity: 0;
+                }
+                100% {
+                    opacity: 1;
+                }
+            }
+            /* media queries */
+
+            @media only screen and (max-width: 768px) {
+                #msg-section {
+                    width: 65%;
+                    min-height: 70vh;
+                }
+            }
+            @media only screen and (max-width: 640px) {
+                #container {
+                    max-width: 98vw;
+                    max-height: 98vh;
+                    display: flex;
+                    flex-direction: column;
+                    /* align-items: center; */
+                    justify-content: center;
+                    gap: 2px;
+                    box-sizing: border-box;
+                }
+                #msg-section {
+                    width: 100%;
+                    min-width: 98%;
+                    height: 70vh;
+                }
+                .message-box {
+                    max-width: 80%;
+                }
+                #user-list {
+                    width: 100%;
+                    flex: 0 0 auto;
+                    height: 25vh;
+                }
+                #user-list-heading {
+                    height: 40px;
+                    position: sticky;
+                }
+                #connected-users-container {
+                    width: 100%;
+                    overflow-x: hidden;
+                    overflow-y: auto;
+                    display: flex;
+                    flex-direction: column;
+                }
+                .scaleH {
+                    margin-top: 0;
+                    margin-bottom: 0;
+                    scale: 0.75;
+                }
+                .connected-user {
+                    gap: 1px;
+                }
+            }
+        </style>
     </head>
     <body>
         <div id="container">
