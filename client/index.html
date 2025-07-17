@@ -193,8 +193,7 @@
                 padding: 4px 20px 4px 4px;
             }
 
-<<<<<<< HEAD
-            .imcoming-msg {
+            <<<<<<< HEAD .imcoming-msg {
                 border-radius: 0px 8px 8px 8px;
                 background-color: #9d56fa;
             }
@@ -204,20 +203,17 @@
                 background-color: #ea5ff8;
                 margin-right: 5px;
             }
-=======
-      .imcoming-msg {
-        border-radius: 0px 6px 6px 6px;
-        background-color: #9d56fa;
-      }
+            ======= .imcoming-msg {
+                border-radius: 0px 6px 6px 6px;
+                background-color: #9d56fa;
+            }
 
-      .outgoing-msg {
-        border-radius: 6px 0px 6px 6px;
-        background-color: #ea5ff8;
-        margin-right: 5px;
-      }
->>>>>>> bf808845b57049f1ee0bd0e4918a3a61980b4bc8
-
-            .timestamp {
+            .outgoing-msg {
+                border-radius: 6px 0px 6px 6px;
+                background-color: #ea5ff8;
+                margin-right: 5px;
+            }
+            >>>>>>>bf808845b57049f1ee0bd0e4918a3a61980b4bc8 .timestamp {
                 /* text-align: right; */
                 padding-right: 6px;
             }
@@ -882,6 +878,23 @@
             function logout() {
                 socket.emit("user left", { id: myId, name: myName, room: myRoom });
             }
+
+            // Measure latency (ping)
+            function checkLatency() {
+                const start = Date.now();
+                socket.emit("pingCheck", () => {
+                    const latency = Date.now() - start;
+                    alert(`Latency: ${latency} ms`);
+                });
+            }
+
+            // Trigger latency check manually (add a button or run on interval)
+            document.addEventListener("keydown", function (e) {
+                if (e.key === "L" && e.altKey) {
+                    // Alt + L to check latency
+                    checkLatency();
+                }
+            });
         </script>
     </body>
 </html>
